@@ -1,32 +1,123 @@
 <!DOCTYPE html>
-<html>
+<html lang="it">
 <head>
-    <meta charset="utf-m" />
+    <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Risiko</title>
+    
+    <!-- Tailwind CSS per uno styling moderno -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
     <style>
-        body {
-            font-family: sans-serif;
-            background-color: #0d3b66;
-            color: #faf0ca;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            text-align: center;
+        /* Contenitore per l'effetto di transizione */
+        .transition-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #0d3b66; /* Colore di sfondo della transizione */
+            pointer-events: none; /* Non blocca i click */
+            z-index: 10;
+            clip-path: circle(0% at 50% 50%); /* Inizia invisibile */
         }
-        h1 {
-            font-size: 2.5em;
+
+        /* Animazione "Star Wipe" stile PowerPoint */
+        .star-wipe {
+            /* Una stella a 5 punte. I punti sono calcolati per creare la forma. */
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+            animation: star-expand 1.5s forwards;
+        }
+
+        @keyframes star-expand {
+            0% {
+                clip-path: polygon(50% 50%, 50% 50%, 50% 50%, 50% 50%, 50% 50%, 50% 50%, 50% 50%, 50% 50%, 50% 50%, 50% 50%);
+            }
+            100% {
+                /* La stella si espande fino a coprire 3 volte lo schermo per assicurarsi che riempia tutto */
+                clip-path: polygon(
+                    calc(50% + 300% * (0.5 - 0.5)) calc(50% + 300% * (0 - 0.5)),
+                    calc(50% + 300% * (0.61 - 0.5)) calc(50% + 300% * (0.35 - 0.5)),
+                    calc(50% + 300% * (0.98 - 0.5)) calc(50% + 300% * (0.35 - 0.5)),
+                    calc(50% + 300% * (0.68 - 0.5)) calc(50% + 300% * (0.57 - 0.5)),
+                    calc(50% + 300% * (0.79 - 0.5)) calc(50% + 300% * (0.91 - 0.5)),
+                    calc(50% + 300% * (0.5 - 0.5)) calc(50% + 300% * (0.70 - 0.5)),
+                    calc(50% + 300% * (0.21 - 0.5)) calc(50% + 300% * (0.91 - 0.5)),
+                    calc(50% + 300% * (0.32 - 0.5)) calc(50% + 300% * (0.57 - 0.5)),
+                    calc(50% + 300% * (0.02 - 0.5)) calc(50% + 300% * (0.35 - 0.5)),
+                    calc(50% + 300% * (0.39 - 0.5)) calc(50% + 300% * (0.35 - 0.5))
+                );
+            }
+        }
+
+        /* Animazione "shake" per il pulsante */
+        .shake {
+            animation: shake-and-grow 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @keyframes shake-and-grow {
+            10%, 90% { transform: translate3d(-1px, 0, 0) scale(1.1); }
+            20%, 80% { transform: translate3d(2px, 0, 0) scale(1.1); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0) scale(1.1); }
+            40%, 60% { transform: translate3d(4px, 0, 0) scale(1.1); }
         }
     </style>
 </head>
-<body>
-    <div>
-        <h1>Welcome to Risiko!</h1>
-        <p>The game development has just begun.</p>
+<body class="bg-gray-900 text-white flex flex-col justify-center items-center h-screen m-0 overflow-hidden">
+
+    <div id="transition-layer" class="transition-overlay"></div>
+
+    <div class="text-center mb-8 z-20">
+        <h1 class="text-5xl font-bold text-yellow-300 drop-shadow-lg animate-pulse">PREMI QUI SOTTO</h1>
+        <p class="text-xl text-gray-300 mt-2">PER GODERE</p>
     </div>
 
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Il pulsante che attiva gli effetti -->
+    <button id="specialButton" class="z-20 bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-8 rounded-full shadow-2xl transform hover:scale-110 transition-transform duration-300 ease-in-out focus:outline-none">
+        GODI
+    </button>
+
+    <script>
+        const specialButton = document.getElementById('specialButton');
+        const transitionLayer = document.getElementById('transition-layer');
+        
+        // Crea l'oggetto Audio. Assicurati di avere 'tuo-suono.mp3' nella stessa cartella.
+        const audio = new Audio('hihihiha.mp3');
+        // Impostazione per modificare la velocità senza cambiare troppo l'intonazione (non supportato da tutti i browser)
+        audio.preservesPitch = false;
+
+        let isEffectActive = false;
+
+        // Event listener per il click sul pulsante
+        specialButton.addEventListener('click', () => {
+            // Impedisce di avviare l'effetto se è già in corso
+            if (isEffectActive) return;
+            isEffectActive = true;
+
+            // 1. Imposta una velocità di riproduzione casuale per l'audio
+            // Valore tra 0.7 (più lento/basso) e 1.5 (più veloce/alto)
+            const randomPlaybackRate = Math.random() * (1.5 - 0.7) + 0.7;
+            audio.playbackRate = randomPlaybackRate;
+            
+            // Si assicura che l'audio parta dall'inizio
+            audio.currentTime = 0;
+            audio.play().catch(error => {
+                console.error("Errore nella riproduzione dell'audio:", error);
+            });
+
+            // 2. Attiva l'animazione del pulsante
+            specialButton.classList.add('shake');
+
+            // 3. Attiva la transizione "Star Wipe"
+            transitionLayer.classList.add('star-wipe');
+            
+            // Resetta tutto dopo che le animazioni sono finite
+            setTimeout(() => {
+                specialButton.classList.remove('shake');
+                transitionLayer.classList.remove('star-wipe');
+                isEffectActive = false;
+            }, 1500); // La durata deve corrispondere a quella dell'animazione più lunga
+        });
+    </script>
 </body>
 </html>
