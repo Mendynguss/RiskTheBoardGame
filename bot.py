@@ -1,11 +1,12 @@
 import asyncio
+import os
 from telegram import Update, InlineQueryResultGame
 from telegram.ext import Application, CommandHandler, InlineQueryHandler, CallbackQueryHandler, ContextTypes
 import logging
 import uuid
 
 # --- CONFIGURATION ---
-BOT_TOKEN = "8071872516:AAFKDXIJepWgl8z1NQuzerhjSeQLmfHW_Uk"  # Replace with your actual token from BotFather
+BOT_TOKEN = os.getenv("BOT_TOKEN")   # Replace with your actual token from BotFather
 GAME_SHORT_NAME = "risiko" # This MUST match the short name you set in BotFather
 
 # ++ NEW PART: This is where your game is hosted! ++
